@@ -1,0 +1,192 @@
+/* -------- Base / Theme -------- */
+:root {
+  --bg-0: #0a0a0a;
+  --bg-1: #0e0e12;
+  --accent: #7c3aed;     /* purple */
+  --accent-2: #8b5cf6;   /* lighter purple */
+  --text: #e7e7ea;
+  --muted: #a1a1aa;
+  --glass: rgba(255,255,255,0.06);
+  --border: rgba(255,255,255,0.12);
+}
+
+* { box-sizing: border-box; }
+
+html, body { height: 100%; }
+
+body {
+  margin: 0;
+  font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+  color: var(--text);
+  /* Deeper vignette + hue accents */
+  background:
+    radial-gradient(1400px 900px at 10% -10%, rgba(124,58,237,.25) 0%, transparent 55%),
+    radial-gradient(1200px 800px at 110% 0%, rgba(56,189,248,.20) 0%, transparent 60%),
+    radial-gradient(1200px 900px at 50% 120%, rgba(0,0,0,.85) 0%, rgba(0,0,0,.95) 70%),
+    linear-gradient(180deg, var(--bg-0), var(--bg-1));
+  overflow: hidden;
+}
+
+/* Grain (stronger) */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  /* 1x1 white pixel repeated; slightly stronger opacity for visible grain */
+  background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR4nGNgYAAAAAMAASsJTYQAAAAASUVORK5CYII=");
+  opacity: 0.08;
+  mix-blend-mode: normal;
+}
+
+/* Subtle dotted grid for structure */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    radial-gradient(circle at center, rgba(255,255,255,.06) 1px, transparent 1.2px);
+  background-size: 26px 26px;
+  opacity: 0.06;
+}
+
+/* Aurora layer (soft, animated gradient blur) */
+.aurora {
+  position: fixed;
+  inset: -20vmax;           /* oversize so the blur doesn’t clip */
+  filter: blur(80px) saturate(110%);
+  opacity: 0.55;
+  background:
+    conic-gradient(from 120deg at 30% 40%,
+      rgba(124,58,237,.65),
+      rgba(56,189,248,.5),
+      rgba(236,72,153,.45),
+      rgba(124,58,237,.65));
+  animation: drift 22s linear infinite;
+}
+
+/* Pause animation for users who prefer reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .aurora { animation: none; }
+}
+
+/* Backdrop canvas (particles from your JS) */
+#bg {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* Layout */
+.wrap {
+  position: relative;
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: 2rem;
+}
+
+.card {
+  max-width: 720px;
+  width: 100%;
+  margin: auto;
+  padding: 2rem;
+  border-radius: 20px;
+}
+
+.glass {
+  background: var(--glass);
+  border: 1px solid var(--border);
+  backdrop-filter: blur(10px);
+  box-shadow:
+    0 20px 50px rgba(0,0,0,.35),
+    inset 0 1px 0 rgba(255,255,255,.06);
+}
+
+/* Copy */
+.eyebrow {
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--muted);
+  margin: 0 0 .5rem 0;
+}
+
+h1.glitch {
+  font-size: clamp(72px, 12vw, 144px);
+  line-height: 0.9;
+  margin: 0 0 .25rem 0;
+  font-weight: 800;
+  position: relative;
+  text-shadow: 0 0 24px rgba(124, 58, 237, .35);
+}
+
+/* Glitch effect */
+h1.glitch::before,
+h1.glitch::after {
+  content: attr(data-text);
+  position: absolute;
+  inset: 0;
+  mix-blend-mode: screen;
+  filter: blur(.5px);
+  opacity: .7;
+}
+h1.glitch::before {
+  transform: translate(-2px, 0);
+  color: #00e5ff;
+  clip-path: polygon(0 2%, 100% 0, 100% 45%, 0 48%);
+}
+h1.glitch::after {
+  transform: translate(2px, 0);
+  color: #ff2b6a;
+  clip-path: polygon(0 55%, 100% 52%, 100% 100%, 0 100%);
+}
+
+.lead { margin: .25rem 0 .5rem; font-size: 1.25rem; color: #f3f4f6; }
+.sub  { margin: 0 0 1.25rem 0; color: var(--muted); }
+.hint { margin-top: 1rem; color: var(--muted); font-size: .95rem; }
+
+/* Buttons */
+.actions { display: flex; gap: .75rem; flex-wrap: wrap; }
+.btn {
+  appearance: none;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text);
+  padding: .8rem 1.1rem;
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform .12s ease, background-color .2s ease, border-color .2s ease;
+}
+.btn:hover { transform: translateY(-1px); }
+.btn.primary {
+  background: linear-gradient(180deg, var(--accent), var(--accent-2));
+  border: 1px solid rgba(255,255,255,.15);
+  color: #fff;
+}
+.btn.ghost:hover { background: rgba(255,255,255,.06); }
+
+/* NoScript note */
+.noscript {
+  position: fixed;
+  bottom: .75rem; left: 50%; transform: translateX(-50%);
+  padding: .5rem .75rem; color: #fff; background: #e11d48;
+  border-radius: 8px; font-size: .9rem;
+}
+
+/* Animations */
+@keyframes drift {
+  0%   { transform: translate3d(-10%, -6%, 0) rotate(0deg); }
+  50%  { transform: translate3d(6%, 4%, 0) rotate(180deg); }
+  100% { transform: translate3d(-10%, -6%, 0) rotate(360deg); }
+}
+
+/* Accessibility */
+@media (prefers-reduced-motion: reduce) {
+  h1.glitch::before,
+  h1.glitch::after { clip-path: none; transform: none; }
+}

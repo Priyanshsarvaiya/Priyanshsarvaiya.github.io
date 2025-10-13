@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>404 – Page Not Found</title>
+
+    <!-- Modern, legible font -->
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;600;800&display=swap" rel="stylesheet" />
+
+    <link rel="stylesheet" href="/404.css" />
+    <script defer src="/404.js"></script>
+  </head>
+  <body>
+    <!-- Optional animated backdrop (disabled when prefers-reduced-motion) -->
+    <canvas id="bg" aria-hidden="true"></canvas>
+    <div class="aurora" aria-hidden="true"></div> 
+
+    <main class="wrap" role="main" aria-labelledby="title">
+      <section class="card glass" aria-live="polite">
+        <p class="eyebrow">Oops!</p>
+
+        <h1 id="title" class="glitch" data-text="404" aria-label="404">404</h1>
+        <p class="lead">This page has gone off the grid.</p>
+        <p class="sub">
+          The link may be broken or the page moved. You can head back home or wait for an automatic redirect.
+        </p>
+
+        <nav class="actions" aria-label="Primary">
+          <a class="btn primary" href="/">Go Home</a>
+          <button class="btn ghost" id="cancelRedirect" aria-live="polite">
+            Cancel Redirect (<span id="count">5</span>)
+          </button>
+        </nav>
+
+        <p class="hint" id="hint">Redirecting to the homepage in <span id="count2">5</span>…</p>
+      </section>
+    </main>
+
+    <noscript>
+      <style>
+        #bg { display:none }
+        .hint { display:none }
+      </style>
+      <div class="noscript">JavaScript is disabled. Use the “Go Home” button above.</div>
+    </noscript>
+  </body>
+</html>
