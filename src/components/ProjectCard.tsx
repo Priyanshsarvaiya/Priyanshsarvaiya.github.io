@@ -1,14 +1,7 @@
+// src/components/ProjectCard.tsx
 import { motion } from "framer-motion";
 import Tag from "./Tag";
-
-type Project = {
-  title: string;
-  summary: string;
-  tags: string[];
-  repo?: string;
-  live?: string;
-  image?: string;
-};
+import type { Project } from "../types"; // <-- import shared type
 
 export default function ProjectCard({ project }: { project: Project }) {
   return (
@@ -46,22 +39,12 @@ export default function ProjectCard({ project }: { project: Project }) {
         {/* links */}
         <div className="mt-4 flex flex-wrap gap-3">
           {project.repo && (
-            <a
-              className="btn"
-              href={project.repo}
-              target="_blank"
-              rel="noreferrer"
-            >
+            <a className="btn" href={project.repo} target="_blank" rel="noreferrer">
               GitHub
             </a>
           )}
           {project.live && (
-            <a
-              className="btn btn-primary"
-              href={project.live}
-              target="_blank"
-              rel="noreferrer"
-            >
+            <a className="btn btn-primary" href={project.live} target="_blank" rel="noreferrer">
               Live
             </a>
           )}
