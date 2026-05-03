@@ -313,10 +313,41 @@ pre code {
   color: #444444;
 }
 
-.footer-links {
+.footer-social {
   display: flex;
   justify-content: center;
-  gap: 18px;
+}
+
+.footer-social ul {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.footer-social a {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: #555555;
+}
+
+.footer-social a:hover {
+  color: var(--link);
+}
+
+.social-icon {
+  display: inline-flex;
+  width: 16px;
+  height: 16px;
+  align-items: center;
+  justify-content: center;
+  color: #c2c2c2;
+}
+
+.footer-social a:hover .social-icon {
+  color: #999999;
 }
 
 .footer-inner p:last-child {
@@ -379,7 +410,7 @@ pre code {
     gap: 14px;
   }
 
-  .footer-links {
+  .footer-social {
     justify-content: flex-start;
   }
 
