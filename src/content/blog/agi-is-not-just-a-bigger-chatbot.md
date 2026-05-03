@@ -1,48 +1,56 @@
 ---
 title: "AGI Is Not Just a Bigger Chatbot"
-description: "Why general intelligence requires agency, grounding, learning, evaluation, and reliable adaptation beyond fluent conversation."
+description: "A careful note on why general intelligence probably needs more than a larger chat interface."
 pubDate: 2026-04-05
 tags: ["AGI", "agents", "world models", "reasoning"]
 category: "AGI"
 draft: false
 ---
 
-Large language models have changed what chatbots can do. A modern assistant can write code, explain concepts, summarize documents, translate between styles, and help plan work. This makes it natural to imagine AGI as the same interface with a larger model behind it. Make the chatbot smarter, give it more tools, and eventually it becomes generally intelligent.
+Chatbots are a very natural interface for AI. You type something, the model responds, and it feels like you are talking to a general-purpose mind. This interface is powerful because language is flexible. The same box can be used for code, math, writing, search, planning, tutoring, debugging, and random questions at 2 a.m.
 
-That view contains part of the truth, but it is too narrow. AGI is not just a better conversation engine. Conversation may be the interface, but general intelligence requires capabilities that go beyond producing helpful text.
+But I think the interface can also mislead us. A chatbot can feel general because we can ask it about anything. That does not mean the underlying system is generally intelligent in the stronger sense.
 
-## Intelligence includes action
+This is not meant as a dunk on chatbots. LLMs are useful, and chat is one of the best ways to expose that usefulness. But AGI, whatever it ends up meaning, should probably not be reduced to "the same chatbot, but bigger."
 
-A chatbot can answer questions. An agent must act. It needs to form goals, choose actions, observe results, and update its plan. If an agent writes code, runs tests, sees a failure, and patches the issue, it is doing more than chatting. It is interacting with an environment that can push back.
+## Language ability is not the same as reliable action
 
-This matters because the world is not a static prompt. Actions have consequences. Tools fail. Assumptions become outdated. Other people respond in unexpected ways. A generally capable system needs feedback loops that connect thought to action and action back to belief.
+A model can explain how to do something without being able to do it reliably. It can describe a plan, list steps, and sound confident. But acting requires more than describing.
 
-Without that loop, a model can sound intelligent while remaining brittle. It may describe a good plan but fail to notice when the plan stops working.
+Suppose a coding assistant says, "I will fix the bug by changing this function and then running the tests." The real question is not whether that sentence is plausible. The question is whether it chooses the right file, makes a minimal change, runs the relevant test, reads the failure correctly, and updates its plan if the first patch is wrong.
 
-## Generality is about transfer
+That feedback loop is where many systems become brittle.
 
-AGI should not mean "good at every benchmark." Benchmarks are useful, but general intelligence is about transfer: using knowledge from one situation to handle a meaningfully different one. A system that can solve known task formats but collapses under small distribution shifts is not very general.
+Language is good at representing plans. It is less obvious that next-token prediction alone gives a system stable goals, durable memory, calibrated uncertainty, or the ability to recover from mistakes. Maybe some of these abilities emerge with scale and training. Maybe some need different scaffolding. I do not think this is settled.
 
-Transfer requires abstraction. The system must recognize the deeper structure of a problem, not only the surface form. It must know when an analogy applies and when it breaks. It must be able to ask for missing information, test a hypothesis, and revise its strategy.
+The difference becomes clearer when the environment changes. A chatbot can answer a question in a static prompt. An agent has to handle the fact that actions change the state of the world. Files get edited. Tools fail. Users clarify instructions. Earlier assumptions become stale. A system that cannot track those changes may still produce fluent responses, but it will not be reliable over time.
 
-LLMs already show impressive transfer in language and code. But they also show failures that reveal shallow generalization. A model may solve a common version of a problem and fail a slightly modified one. It may rely on a memorized pattern instead of tracking the actual constraints.
+## Agents change the problem
 
-## Grounding and world models matter
+Once a model can use tools, browse files, run code, or call APIs, the problem becomes less like conversation and more like control.
 
-A larger chatbot can know more facts, but AGI needs to connect facts to situations. If a system is planning a lab experiment, managing a calendar, or controlling a robot, it needs some model of state: what is true now, what changed, what could happen next, and what evidence supports each belief.
+A tool-using agent needs memory: what has it tried, what worked, what failed, what constraints did the user give? It needs planning: what should happen next, and what depends on what? It needs feedback: did the action actually produce the expected result? It needs some way to avoid repeating the same mistake with different wording.
 
-This is why world models are central. They help an agent reason about consequences. They also help detect surprise. If the system expects a command to produce one result and observes another, it should treat that mismatch as information.
+These are not impossible requirements. Humans use external tools and notes all the time. A good AI system might also use scratchpads, retrieval, explicit task state, tests, simulators, or other forms of environment feedback. The point is that the chat interface is only the visible layer.
 
-Grounding does not always require physical embodiment. A software agent can be grounded in files, tests, databases, APIs, and user feedback. The important part is that the system's internal state is constrained by something outside its own generated text.
+This is where world models might matter. If an agent edits a file, it should have some expectation about how that edit affects the program. If it schedules a meeting, it should understand that two people cannot attend if their calendars conflict. If it summarizes a paper, it should know that a claim needs support from the text, not just a sentence that sounds related.
 
-## Evaluation has to become harder
+I am using "world model" loosely here. It does not have to mean a separate module with a neat diagram. It just means the system has some usable representation of state, cause and effect, and possible consequences.
 
-If we evaluate AGI-like systems only by asking questions, we will overestimate fluency and underestimate reliability. We need evaluations that involve longer horizons, changing environments, hidden state, tool failures, and conflicting objectives. We need to know whether a system can maintain goals without ignoring new evidence.
+## Robustness is part of generality
 
-We also need safety evaluations that match the same level of agency. A chatbot that gives a bad answer is one kind of risk. An agent that takes bad actions at scale is another. As systems become more capable, alignment and robustness need to be evaluated in settings where the system can actually change things.
+AGI is hard to define. If the definition is too vague, it becomes almost useless. If it is too benchmark-driven, we risk training systems that are good at the benchmark but fragile outside it.
 
-## A broader picture
+One property that seems important is robustness under distribution shift. Can the system handle a task when the wording changes? Can it ignore irrelevant context? Can it ask for missing information instead of guessing? Can it notice when a tool result contradicts its plan? Can it keep working when the first attempt fails?
 
-The path to AGI may still involve language models. In fact, language may be one of the best interfaces for combining knowledge, reasoning, and human feedback. But the final system will likely need memory, tools, planning, grounded feedback, uncertainty estimates, and world models that support action.
+This is where current models are uneven. They can be surprisingly good at tasks that look new, especially in language and code. But they can also be sensitive to prompt phrasing, distractors, and hidden assumptions. Sometimes they solve the hard part and miss the obvious constraint. Sometimes they produce an explanation that sounds more stable than the actual reasoning process.
 
-Calling AGI a bigger chatbot undersells both the promise and the difficulty. The goal is not only to generate better responses. The goal is to build systems that can understand situations, act carefully, learn from consequences, and remain reliable when the context changes.
+For AGI, I would want more than broad language competence. I would want systems that maintain state, test beliefs, recover from errors, and behave sensibly when the environment is not clean.
+
+## A cautious ending
+
+Scaling may still be part of the story. It would be strange to ignore how much capability has come from larger models, better data, and more compute. I do not want to make the opposite mistake and claim that scaling cannot produce deeper abilities. We have already seen that simple objectives can lead to surprising behavior.
+
+But I doubt that "bigger chatbot" is the full picture. The chat window is an interface, not a complete theory of intelligence. General intelligence likely involves language, but also memory, grounding, planning, feedback, self-correction, robustness, and some ability to model the world well enough to act in it.
+
+Maybe future systems will make these distinctions feel outdated. Maybe the right training setup will fold many of these abilities into one model. For now, though, I find it more useful to ask what capabilities are missing from fluent conversation than to assume fluency is the same as general intelligence.

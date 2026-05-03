@@ -1,46 +1,56 @@
 ---
 title: "Why World Models Matter for AGI"
-description: "A beginner-friendly look at why intelligent systems need more than text prediction to reason, plan, and adapt."
+description: "A research note on why prediction, hidden state, and imagined consequences seem important for more general intelligence."
 pubDate: 2026-04-29
 tags: ["world models", "AGI", "LLMs", "reasoning"]
 category: "World Models"
 draft: false
 ---
 
-When people talk about artificial general intelligence, they often jump straight to scale: larger models, larger datasets, larger clusters, and longer context windows. Scale clearly matters. It has produced systems that can write code, summarize papers, explain math, and act as useful assistants. But scale alone does not fully explain what we usually mean by intelligence. A generally capable system must also understand how actions change the world, how hidden variables matter, and how plans can fail when reality pushes back.
+If you knock over a glass of water, you expect the water to spill before it happens. You do not need to run a physics simulation in your head. You also do not need to have seen that exact glass, on that exact table, from that exact angle. You have some rough expectation about gravity, liquid, surfaces, and what usually follows from pushing objects.
 
-That is where world models become important.
+That expectation is a tiny world model.
 
-## What is a world model?
+I do not mean "world model" in a grand or mystical way. At the simplest level, a world model is just a useful internal guess about how some part of the world works. It can be incomplete and still be useful. I know a glass can break if it falls, even though I cannot predict every shard. I know that if I delete a file and then run a script that imports it, something will probably fail. I know that if a model is given a misleading paragraph in a prompt, it might use it even if the paragraph is irrelevant.
 
-A world model is an internal representation of how some environment works. It does not need to be a perfect physics simulator. Humans do not carry a complete molecular simulation of the world in our heads. Instead, we keep useful approximations: cups fall when released, people may be upset if ignored, a website form can fail because a field is missing, and a chess move changes future possibilities.
+These are small expectations about cause and effect. They help with prediction, planning, and noticing surprise.
 
-The key point is prediction under intervention. A useful world model lets an agent ask, "What will probably happen if I do this?" That question is different from "What text usually comes next?" Text prediction can contain knowledge about the world, but AGI likely needs representations that support planning, counterfactuals, and correction when observations disagree with expectations.
+## A small model of the world
 
-## Why text knowledge is not enough
+The interesting part is not just knowing facts. It is knowing how facts relate when something changes.
 
-Language models learn a huge amount about the world through language. If a model reads enough text, it can infer that water is wet, banks can fail, APIs have rate limits, and people prefer honest explanations. This is powerful because language compresses human experience. In that sense, LLMs already have partial world models.
+Suppose an AI assistant is helping debug code. It reads an error message, looks at a file, suggests a fix, and then the test output changes. A useful system should update its state: the old error may be gone, the new error may be caused by the patch, and the next step should depend on what changed. If it keeps solving the first error because that is what appeared earlier in the conversation, it is not really tracking the situation.
 
-The weakness is that language is indirect. Text describes reality after humans have filtered, simplified, and narrated it. Many important facts are missing, assumed, or only true in specific contexts. A model can repeat a correct explanation but still fail when asked to use that explanation in a changing situation. It may know the rule and still not track the state.
+This is where world models start to matter for agents. An agent is not only answering a question. It is acting in an environment, even if that environment is just a codebase, browser, shell, or database. Actions change things. The model needs some representation of what is currently true, what is uncertain, and what might happen next.
 
-For example, a model can explain how a container puzzle works but lose track of which object is currently inside which box after several moves. It can describe a software system but propose a patch that ignores a constraint introduced earlier in the conversation. These are not just memory problems. They are failures to maintain a reliable model of the current situation.
+That does not mean the representation has to be explicit, symbolic, or human-readable. It might be distributed across activations. It might be partly stored in text, partly in memory, partly in tools. I am not sure what the right architecture is. But the function seems important: the system has to predict consequences well enough to choose actions.
 
-## Planning needs state
+## What language can teach
 
-Planning requires more than listing plausible steps. It requires knowing what each step changes. If an agent books a meeting, sends an email, edits a file, or runs an experiment, the world after the action is different from the world before the action. A capable system should update its beliefs, notice when an action did not work, and choose a new path.
+LLMs make this question more confusing in an interesting way. They are trained to predict text, but text contains a lot of compressed world knowledge. A model that reads enough language sees descriptions of physics, social situations, programming bugs, scientific experiments, plans, failures, and explanations. It would be surprising if it learned nothing about the world from that.
 
-This is why world models are closely connected to agency. An agent without a world model can still produce helpful text, but it struggles to act reliably over time. It may not notice that a tool result contradicts its plan. It may optimize for sounding coherent instead of checking whether the environment actually changed.
+So I do not like the simple claim that language models have "no world model." That feels too strong. If a model can answer that ice melts in heat, that a key opens a lock, or that a variable must be defined before use, it has learned some structure about how things work.
 
-## What current LLMs suggest
+But I also do not think next-token prediction automatically gives us the kind of world model needed for reliable agents. Language is indirect. Text is written after humans choose what to mention. Many important details are omitted because they are obvious to us. A recipe may say "put the pan on the stove" without explaining heat transfer. A bug report may leave out the real cause. A conversation may contain old assumptions that are no longer true.
 
-Modern LLMs blur the line between pattern recognition and modeling. They can simulate simple environments in text, follow multi-step instructions, infer hidden intentions, and solve problems that require abstraction. That suggests they learn more than shallow surface patterns.
+This is one reason LLMs can sound like they understand a situation while still losing track of state. They may know the general rule but fail to apply it to the current case. For example, a model can explain object permanence, then still mess up a toy example where a ball moves between boxes over several steps. Or it can explain how a patch should work, then forget that the file was renamed earlier in the same prompt.
 
-At the same time, they are brittle. They can be distracted by irrelevant context, overfit to phrasing, or make confident claims after losing track of state. These failures suggest that whatever world modeling exists inside current LLMs is incomplete, uneven, and heavily dependent on the prompt.
+The failure is not always lack of knowledge. Sometimes it is failure to maintain the right state.
 
-This does not mean LLMs are the wrong path. It means language may be one ingredient in a larger system. Future systems might combine language models with memory, planning modules, learned simulators, tool feedback, environment interaction, and training objectives that reward accurate state tracking.
+## Planning needs imagined consequences
 
-## Open questions
+Planning is where this becomes more obvious. A plan is not just a list of plausible steps. A plan should contain an implicit story about what each step changes.
 
-The main research question is not whether world models matter. It is what kind of world models are needed, and how they should be learned. Should they emerge from prediction at massive scale? Should models interact with environments and learn from consequences? Should world models be explicit modules, or distributed across the same network that handles language?
+If I want to write a blog post, I might first choose a topic, then outline it, then draft it, then revise the unclear parts. Each step changes the state of the work. If the outline is bad, the draft will probably drift. If the title is too broad, the post may become vague. This is a small planning problem, but it still depends on imagining consequences.
 
-My current view is cautious: LLMs have taught us that language contains far more structure than many people expected, but AGI will need systems that can preserve the right state, reason over interventions, and revise beliefs when the world disagrees. World models matter because intelligence is not only about describing reality. It is about acting in it.
+For more capable AI systems, the stakes are higher. A research agent might run experiments. A coding agent might edit files. A personal assistant might send messages or schedule meetings. In each case, the system needs to ask something like: if I do this, what will likely happen, what could go wrong, and what evidence would tell me I was wrong?
+
+That last part matters. A world model is useful not only because it predicts. It is useful because surprise becomes meaningful. If the system expected a test to pass and it fails, that mismatch should update the system's beliefs. Without that feedback loop, the model can keep generating confident text around a broken plan.
+
+## An open question
+
+The question I keep coming back to is whether LLMs already learn enough partial world models from text, or whether reliable AGI-like systems need something more direct: interaction, memory, tool feedback, environment training, explicit state tracking, or some combination.
+
+I do not think this is settled. It is possible that scale plus better training will make the internal models much stronger than they are now. It is also possible that language-only training leaves important gaps because the model mostly sees descriptions of consequences, not consequences themselves.
+
+My current intuition is modest: world models matter because intelligence is not only about producing the next good sentence. It is about keeping track of what is true, imagining what might happen, acting, observing the result, and changing your mind when the world disagrees.

@@ -1,44 +1,54 @@
 ---
 title: "Are LLMs Reasoning or Pattern Matching?"
-description: "A practical way to think about the reasoning debate without treating pattern matching and reasoning as opposites."
+description: "A more careful way to think about the reasoning debate: not whether patterns exist, but when they generalize and when they break."
 pubDate: 2026-04-24
 tags: ["LLMs", "reasoning", "intelligence"]
 category: "LLMs"
 draft: false
 ---
 
-One of the most common debates about language models is whether they are reasoning or merely pattern matching. The question sounds simple, but it often hides a false choice. Every learned system matches patterns in some sense. Human reasoning also depends on patterns: analogies, learned procedures, familiar structures, and memories of similar problems. The real question is not whether LLMs use patterns. They obviously do. The better question is what kinds of patterns they learn, and whether those patterns support reliable reasoning in new situations.
+People often use "pattern matching" as an insult when talking about LLMs. The idea is that the model is not really reasoning, it is just matching the prompt to something it has seen before and producing a familiar-looking answer.
 
-## Pattern matching can be powerful
+There is some truth in that. There are plenty of cases where a model gives the answer that fits the surface pattern, not the actual problem. But I also think the phrase can hide more than it explains. Human reasoning uses patterns too. When I see a math problem, I look for familiar structure. When I debug code, I compare the error to bugs I have seen before. When I read an argument, I recognize shapes like contradiction, analogy, missing assumption, or circular reasoning.
 
-The phrase "pattern matching" is often used as a dismissal. It suggests a system that notices superficial similarity and repeats an answer without understanding. That happens with LLMs. A model may see a familiar-looking math problem and produce the memorized style of solution, even when a small detail changes the answer. It may respond to a trick question with the common but wrong completion.
+So the interesting question is not whether LLMs use patterns. Of course they do. The question is whether the patterns are robust enough to support reasoning in situations that are new, slightly shifted, or full of irrelevant detail.
 
-But pattern matching can also be deep. A model trained on code, proofs, explanations, and conversations may learn abstract patterns about variables, functions, causality, and argument structure. If it learns that a problem can be decomposed into subgoals, or that a contradiction invalidates a claim, those are still patterns, but they are useful reasoning patterns.
+## Patterns are not the enemy
 
-So the issue is not "patterns versus reasoning." The issue is whether the learned patterns generalize beyond the training distribution.
+A shallow pattern is something like: "This problem mentions trains, so use the usual train-word-problem formula." That can fail quickly if the wording changes or if there is a trick. A deeper pattern is more like: "There are two quantities changing over time, I need to write down their relationship and solve for the unknown." That is still a pattern, but it is a useful abstraction.
 
-## What would count as reasoning?
+LLMs seem to learn both kinds. This is why they can be impressive and frustrating in the same session.
 
-For a language model, I would look for several behaviors. First, it should maintain relevant state across steps. Second, it should choose operations that are appropriate for the problem, not just words that sound like a solution. Third, it should notice when an intermediate result conflicts with the goal. Fourth, it should adapt when the problem is phrased in an unfamiliar way.
+For example, a model can help debug code by reading an error message, inspecting a function, and noticing that a value can be `undefined`. That looks like reasoning. It is using evidence from the current context and connecting it to a possible cause. But the same model might also hallucinate an API method because the method name sounds plausible. In one case it tracks the actual problem. In the other, it completes the style of a solution.
 
-These are behavioral criteria. They do not require us to prove that the model has human-like inner experience. They ask whether the system can perform the functional role of reasoning.
+Math word problems show the same tension. A model may solve a clean problem step by step, then fail when a small condition is added: "Alice gives back two apples before the final count" or "the question asks for the number remaining, not the number used." The explanation can still look neat. It may even include equations. But if the model did not track the changing state, the explanation is mostly decoration.
 
-By this standard, LLMs sometimes reason and sometimes fail badly. They can solve new programming tasks, explain a paper, or debug an error by combining evidence. They can also make basic logical mistakes, ignore a constraint, or rationalize an answer after choosing it too early.
+That is the part that worries me most: reasoning-looking text is cheap for language models. Actual state tracking is harder.
 
-## Why the answer changes by setting
+## Explanations can be convincing and wrong
 
-LLM reasoning is highly context-sensitive. The same model may do well with a clean prompt and fail when the context is long, noisy, or adversarial. A model may solve a puzzle when the important facts are near the end, then fail when irrelevant facts are inserted around them. It may reason better when asked to use tools, write down intermediate steps, or check its answer.
+Step-by-step reasoning helps in many cases, but it is not magic. Sometimes the steps are a real working memory. Sometimes they are a story written after the answer has already been guessed.
 
-This suggests that reasoning is not a single stable trait. It is an interaction between the model, prompt, task, context length, training data, decoding strategy, and available tools. Asking "Can LLMs reason?" is a bit like asking "Can humans reason?" The answer depends on sleep, incentives, domain knowledge, and the structure of the problem.
+I notice this most in long-context questions. Suppose the prompt contains several documents and asks a specific question. The relevant answer is in document 3, but document 7 contains a similar phrase that points in the wrong direction. A model might produce a confident answer using document 7 because it feels semantically close. If asked to explain, it may cite the wrong passage smoothly.
 
-## The danger of fluent explanations
+That does not mean the model is incapable of reasoning. It means the evaluation has to check whether the reasoning is grounded in the right evidence. A polished explanation is not enough.
 
-The hardest part is that language models are fluent even when they are wrong. A human learner often reveals confusion through hesitation or inconsistent explanation. An LLM can produce a polished answer that hides a weak internal process. This makes evaluation difficult. We need tests that separate the final text from the underlying ability to track constraints, use evidence, and recover from errors.
+Code is another useful example. If a model proposes a patch, the real test is not whether the explanation sounds good. The test is whether the code builds, the tests pass, and the patch respects constraints from the repo. A model can write a beautiful explanation for a change that breaks an import. The environment is less impressed by fluency than we are.
 
-Good evaluations should include counterfactual variants, distractors, longer contexts, and tasks where shallow templates break. They should also measure calibration: does the model know when its answer is uncertain?
+This is why I like tasks where the answer has to survive contact with something external: a compiler, a unit test, a theorem checker, a database query, or a carefully constructed counterexample.
 
-## A more useful framing
+## Where the reasoning breaks
 
-My current view is that LLMs do a mixture of shallow pattern completion, learned heuristics, and genuine problem-solving behavior. The interesting research is in understanding when each mode appears. What makes a model switch from copying a familiar solution to constructing one? How much does chain-of-thought help because it exposes reasoning, and how much because it creates more tokens for pattern search? How does noisy context change the answer?
+I do not think the useful question is "Do LLMs reason?" It is too broad. The answer changes depending on the task, prompt, model, tools, and amount of noise in the context.
 
-Instead of asking whether LLMs are reasoning or pattern matching, we should ask which reasoning behaviors are robust, which are brittle, and what training or architecture changes make them more reliable.
+A better question is: when does the reasoning break?
+
+Does it break when the problem is longer? When an irrelevant paragraph is inserted? When two facts are far apart? When the final answer requires rejecting a tempting but false clue? When the model has to revise an earlier assumption? When the problem is phrased in a way that does not match common examples from training?
+
+These questions feel more researchable. They also avoid the vague philosophical fight. I do not need to decide whether the model "understands like a human" to test whether it can track a variable through ten transformations or ignore a misleading piece of context.
+
+My current view is that LLMs can perform behaviors that deserve to be studied as reasoning, but the behavior is uneven. Sometimes the model is doing something close to problem solving. Sometimes it is leaning on brittle templates. Often it is hard to tell from the final answer alone.
+
+That is why evaluation matters so much. If a benchmark only rewards the final string, it may miss the difference between correct reasoning and lucky completion. If it includes counterexamples, distractors, tool feedback, and shifted versions of the same task, we learn more.
+
+The phrase "pattern matching" is not wrong, but it is too blunt. The real issue is whether the learned patterns are shallow shortcuts or useful abstractions, and how quickly they fall apart when the context stops being clean.

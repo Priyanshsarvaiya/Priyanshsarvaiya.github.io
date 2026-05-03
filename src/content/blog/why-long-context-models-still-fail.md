@@ -1,48 +1,60 @@
 ---
 title: "Why Long-Context Models Still Fail"
-description: "Long context windows are useful, but they do not solve retrieval, reasoning, or state tracking by themselves."
+description: "Long context windows are exciting, but fitting more text is not the same as using that text well."
 pubDate: 2026-04-11
 tags: ["long-context", "context windows", "evaluation"]
 category: "LLMs"
 draft: false
 ---
 
-Long-context models feel like an obvious solution to many problems. If a model can read an entire codebase, a full book, or months of chat history, why should it miss anything? The answer is that context capacity is only one part of the problem. A larger window lets the model receive more tokens, but it does not guarantee that the model will find the right tokens, use them correctly, or maintain a coherent state across the whole input.
+A very large context window sounds almost like memory. If a model can take in a whole book, a whole codebase, or a long conversation, it feels like it should be able to answer anything about it. The information is right there. What else is missing?
 
-This is why long-context models can be impressive and disappointing at the same time.
+The missing part is use.
 
-## They can store more than they can use
+Putting text into the context window is not the same as making the model reason with it correctly. A context window is more like a workspace than a memory. You can put a lot on the desk, but the desk does not organize itself. If the important page is under a pile of similar pages, you can still miss it.
 
-A context window is like a desk covered with papers. A bigger desk helps because more papers can fit. But if the papers are unsorted, duplicated, contradictory, or filled with irrelevant notes, the bigger desk does not automatically make the work easier. It may make the important page harder to find.
+That is the basic reason long-context models still fail. They can store more text than they can reliably use.
 
-Models face a similar issue. They can attend over long inputs, but attention is not the same as understanding. The model has to identify which parts are relevant to the current task. It has to combine details from different locations. It has to avoid being pulled toward nearby but irrelevant patterns.
+## Retrieval is only one piece
 
-Needle-in-a-haystack evaluations test one version of this problem by hiding a fact inside a long document. Many models now do well on simple versions of that task. But real tasks are harder because the model must often determine which facts are needles in the first place.
+Some failures are retrieval failures. The answer is in the prompt, but the model does not find it. This happens when the relevant detail is buried, phrased differently from the question, or surrounded by distracting information.
 
-## Reasoning over long context is compositional
+But other failures are not just retrieval. The model may find the right sentence and still reason incorrectly from it.
 
-Some long-context failures are retrieval failures: the answer was in the prompt, but the model did not use it. Other failures are reasoning failures: the model found the fact but combined it with other facts incorrectly. A third category is state failure: the model did not track how the situation changed over time.
+Imagine a long debugging session. Early in the conversation, the user says a function is broken. Later, the function is fixed, but a new test fails because of a different file. If the model keeps focusing on the original function, it is not simply failing to retrieve text. It is failing to update the state of the problem.
 
-Consider a long debugging conversation. Early on, the user mentions an error. Later, a file is changed. Later still, a test produces a new failure. A useful model must know that the original hypothesis may no longer apply. If it treats every previous message as equally current, it may keep solving an old problem.
+Another example is a policy document with exceptions. The model may retrieve the general rule but miss the exception that applies to the current case. Or it may retrieve both and not understand which one has priority. The answer string exists somewhere, but the task requires more than copying it out.
 
-This is not simply a matter of reading more. It requires temporal reasoning, belief revision, and a way to distinguish active constraints from historical notes.
+This is why I think long-context evaluation has to separate retrieval from reasoning. "Can the model find the relevant sentence?" and "Can the model use the relevant sentence correctly?" are different questions.
 
-## Position still matters
+## The middle is a hard place to live
 
-Many long-context models are sensitive to where information appears. Important facts near the beginning or end of the prompt may be easier to use than facts buried in the middle. This is sometimes called the lost-in-the-middle problem. Even when architectures improve, position effects can remain because training data and prompting patterns teach models that certain locations are more important.
+There is also the intuition behind "lost in the middle." Information near the beginning or end of a prompt can be easier for a model to use than information buried deep in the middle. I do not want to overstate this as a universal law, because architectures and training methods keep changing. But as a practical pattern, position still seems to matter.
 
-For users, this means prompt structure matters. Putting critical instructions in a clear final section can help. So can using headings, summaries, and explicit evidence lists. But if a model only works when the prompt is carefully organized, its long-context reasoning is still fragile.
+This creates a strange user experience. You give the model all the information, but the answer changes depending on where the key paragraph appears. Put the instruction at the end and it follows it. Put the same instruction in the middle of a long prompt and it may ignore it. That is not what we usually mean by reliable memory.
 
-## Evaluation needs to look realistic
+Prompt formatting can help. Headings help. Summaries help. Separating "current facts" from "old notes" helps. But if a system only works when the context is carefully arranged, then the long-context ability is still fragile.
 
-It is tempting to evaluate long-context models with tasks that have a single hidden answer. Those tests are useful, but they are not enough. Real long-context use includes irrelevant information, conflicting information, outdated information, and multiple possible interpretations.
+The harder case is when the prompt contains distractors. A distractor is not random noise. It is information that looks relevant but is not. For example, a question asks about one paper, and the prompt contains another paper with similar terminology. Or a code prompt contains an old error message that was already fixed. The model has to resist the easy match.
 
-Better evaluations should ask whether the model can ignore distractors, identify stale context, combine evidence from distant sections, and explain which facts support the answer. They should also test whether performance changes when the same information is moved to different positions.
+That resistance is a reasoning skill, not just a context-length feature.
 
-The goal is not to make models memorize a long input. The goal is to make them reason over it.
+## Benchmarks can hide the problem
 
-## What might help
+Some long-context benchmarks ask whether the model can retrieve a hidden fact from a large input. These tests are useful because they reveal whether the model can access information across the window. But they can also make the problem look cleaner than it is.
 
-Several system-level strategies can reduce long-context failures. Retrieval can select likely relevant documents before the model sees them. Summaries can compress old context. Tool use can let the model query files instead of holding everything in memory. Structured scratchpads can separate current facts, open questions, and completed steps.
+In real tasks, the model often does not know which fact is the hidden needle. There may be many possible needles. Some are outdated. Some are related but not decisive. Some are written in a more confident tone than the correct evidence.
 
-But these are scaffolds, not complete solutions. The deeper challenge is teaching models to treat context as evidence, not as a bag of text to imitate. Long-context models will keep improving, but the useful question is not "How many tokens fit?" It is "How reliably can the model find and use the right signal?"
+A benchmark that only checks whether the answer string appears somewhere in the context may miss these cases. It rewards finding, not necessarily understanding. A stronger evaluation would test whether the model can ignore irrelevant sections, combine facts from different places, handle updates over time, and explain which evidence actually supports the answer.
+
+Even then, explanation can be tricky. A model can give a reasonable-sounding citation after guessing. So the evaluation should include shifted versions of the same task, counterexamples, and cases where the tempting evidence is wrong.
+
+## Still worth being excited about
+
+None of this means long-context models are useless. I think they are genuinely important. They make it possible to work with larger documents, longer conversations, more code, and richer task histories. Even imperfect long context is useful.
+
+The mistake is treating context length as if it automatically solves memory, retrieval, and reasoning. It does not. It gives the model a larger workspace. The model still has to decide what matters, what is current, what conflicts, and what should be ignored.
+
+My current intuition is that long-context systems will need a mix of better models and better scaffolding. Retrieval can preselect useful information. Summaries can compress old context. Tools can let the model query instead of holding everything at once. But the core challenge remains: the system has to treat context as evidence, not as a giant blob of text.
+
+So the question I care about is not just "How long is the context window?" It is "How well can the model use the right parts of the context when the rest is messy?"

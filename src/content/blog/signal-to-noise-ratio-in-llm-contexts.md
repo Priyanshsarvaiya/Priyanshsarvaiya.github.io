@@ -1,48 +1,64 @@
 ---
 title: "Signal-to-Noise Ratio in LLM Contexts"
-description: "Why long prompts are not automatically useful, and how irrelevant context can interfere with model reasoning."
+description: "A note on why extra context can help or hurt, and why irrelevant information is a real reasoning problem for language models."
 pubDate: 2026-04-18
 tags: ["long-context", "reasoning", "SNR", "LLMs"]
 category: "Research Notes"
 draft: false
 ---
 
-Long-context language models are often described by the size of their context window. A model might support 128,000 tokens, 1 million tokens, or even more. This is useful, but it can create a misleading impression: if the model can fit more information, it must be able to use more information. In practice, context length and context usefulness are different things.
+Imagine asking a model a question about one paragraph in a document, but the prompt also includes ten other documents, an old chat history, a few irrelevant examples, and a confident but wrong summary from earlier. The answer might be present somewhere. The model might even have enough context length to read all of it. But it can still fail.
 
-One way to think about this gap is signal-to-noise ratio.
+This is the part of long-context AI that interests me most right now. It is not only about whether the model can fit more tokens. It is about whether the model can find and use the right information when the prompt contains a lot of other stuff.
 
-## What is signal in a prompt?
+One simple way to talk about this is signal-to-noise ratio.
 
-Signal is the information that actually helps solve the task. If the user asks a model to answer a question about a contract, the relevant clause is signal. If the user asks for a bug fix, the stack trace and the file containing the bug are signal. If the task is a reasoning puzzle, the constraints that determine the answer are signal.
+## Signal and noise
 
-Noise is information that does not help, or actively distracts from the solution. It can be irrelevant documents, repeated instructions, stale chat history, misleading examples, unnecessary background, or facts that are true but unrelated.
+Signal is the information needed to solve the task.
 
-The challenge is that real prompts mix both. A model must not only process tokens. It must decide which tokens matter.
+If the user asks, "What did the contract say about early termination?", the relevant clause is signal. If the user asks why a test failed, the stack trace and the file that changed are probably signal. If the task is a reasoning puzzle, the constraints that determine the answer are signal.
 
-## Why noisy context is hard
+Noise is everything that does not support the answer. Noise can be harmless, like background text that is unrelated. It can be distracting, like a paragraph that uses similar words but talks about a different issue. It can be misleading, like an earlier answer that was later corrected. It can also be authoritative-looking, which is worse, because the model may treat it as important just because it is written confidently.
 
-Noisy context creates several failure modes. The first is attention dilution. Even if a model can technically attend to a long input, the important facts may become harder to prioritize when surrounded by thousands of irrelevant tokens. The second is false association. A model may connect the task to a nearby but irrelevant detail and produce an answer that sounds grounded but uses the wrong evidence.
+Real prompts often contain both. This is especially true for agents. An agent might accumulate tool logs, old plans, file contents, errors, partial summaries, user feedback, and previous attempts. If all of that gets dumped into the context window, the model has to decide what still matters.
 
-The third failure mode is instruction conflict. Long conversations often contain old plans, abandoned assumptions, and earlier requests that no longer apply. If the model does not separate current instructions from stale ones, it can follow the wrong objective.
+That decision is not trivial.
 
-The fourth is confidence inflation. More context can make an answer sound better because the model has more material to cite, even when the selected material is not the correct evidence.
+## How extra context can hurt
 
-## Long context is not the same as memory
+The most obvious failure is that the model misses the relevant fact. The answer is in the prompt, but it is buried somewhere in the middle, surrounded by more salient text. The model responds from general knowledge or from a nearby section instead.
 
-A context window is a temporary workspace, not a reliable memory system. It gives the model access to text, but it does not guarantee retrieval, prioritization, or state management. If the model must reason over a long conversation, it needs to know which facts remain true, which were superseded, and which are irrelevant.
+A second failure is using the wrong fact. This feels common in long-context question answering. The model finds a sentence that sounds related, but it is not the sentence that actually answers the question. For example, a prompt might include two experiments with similar names. The model cites the result from experiment B when the question was about experiment A.
 
-This matters for agentic systems. Agents often accumulate tool outputs, file contents, logs, user feedback, and intermediate plans. If everything stays in context without structure, the prompt can become a messy notebook. The model may still produce fluent actions, but those actions can be based on the wrong part of the notebook.
+A third failure is mixing relevant and irrelevant facts. The model may correctly identify one constraint but combine it with a distractor. In a word problem, this could mean using the right starting number but the wrong operation from an unrelated example. In code, it could mean fixing the correct file while also changing an unrelated function because the earlier chat mentioned it.
 
-## Studying context robustness
+The fourth failure is overconfidence. Long context can make an answer feel grounded even when it is not. The model has more material to quote, more names to mention, and more details to weave into a response. That can produce an answer that sounds researched but is based on the wrong evidence.
 
-A simple experiment is to hold the task constant while changing the amount and type of irrelevant context. For example, give the model a reasoning problem with a clear answer, then add unrelated paragraphs before and after it. Does accuracy drop? Does the model cite irrelevant text? What happens if the noise is semantically similar to the task but not actually useful?
+This is why I am skeptical of judging long-context models only by whether they can retrieve a hidden string. That is useful, but it is not the whole problem. In realistic prompts, the model has to decide what counts as evidence.
 
-Another experiment is to insert misleading context that resembles a solution. If the model follows the distractor, that suggests it is not reliably grounding its answer in the true constraints. If it ignores the distractor and explains why, that is stronger evidence of context robustness.
+## Why this is a reasoning problem
 
-The most interesting cases are not obvious failures. They are cases where the model reaches the right answer for the wrong reason, or the wrong answer with a convincing explanation.
+It is tempting to treat signal-to-noise ratio as a retrieval issue: find the right chunk, ignore the rest. Retrieval is part of it. But once the relevant facts are found, the model still has to reason with them.
 
-## Designing better prompts and systems
+Suppose a prompt says:
 
-Improving signal-to-noise ratio is partly a prompt design problem. We can place important instructions near the end, summarize stale context, separate evidence from commentary, and ask the model to cite the facts it used. But this is also a model capability problem. A robust system should learn to filter, rank, and update context without relying on perfect prompt hygiene.
+"The deadline was originally Friday. Later, the team moved it to Monday. The user asks for the current deadline."
 
-Long-context AI will be genuinely useful when models can do more than fit the tokens. They need to preserve the signal, ignore the noise, and reason from the right evidence.
+The word "Friday" is not noise exactly. It is historical context. The model needs to understand that it was superseded. If it answers Friday, it did not just retrieve the wrong sentence. It failed to track the update.
+
+This kind of thing happens in conversations all the time. Plans change. Assumptions get corrected. Files get edited. Tests fail for new reasons. A model that treats all text as equally current can sound reasonable while following stale context.
+
+That is why I think noisy context is connected to reasoning. The model needs to filter, rank, update, and sometimes reject information. More context gives it more opportunity to do the right thing, but also more opportunity to latch onto the wrong thing.
+
+## A question I keep coming back to
+
+One experiment I want to think more about is simple: keep the task fixed and gradually add irrelevant context. Start with a clean reasoning question. Then add unrelated text. Then add text that is topically similar but not useful. Then add a misleading hint. At what point does the model's answer start to degrade?
+
+The interesting measurement is not only accuracy. I would also want to know whether the model cites the wrong evidence, changes its confidence, or produces a correct answer for the wrong reason.
+
+This is close to my current research interest: how language models reason when context becomes noisy, long, or misleading. I do not think the answer is just "better prompts" or just "bigger context windows." Prompt structure helps, but a robust model should not need perfectly clean input to preserve the important signal.
+
+The concrete open question is:
+
+How much irrelevant context can a model tolerate before its reasoning starts to degrade?
