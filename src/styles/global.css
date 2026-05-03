@@ -17,6 +17,9 @@
 }
 
 html {
+  width: 100%;
+  overflow-x: hidden;
+  overscroll-behavior: none;
   background: var(--background);
   color: var(--text);
   font-family:
@@ -25,6 +28,9 @@ html {
 }
 
 body {
+  width: 100%;
+  overflow-x: hidden;
+  overscroll-behavior: none;
   min-height: 100vh;
   margin: 0;
   background: var(--background);
@@ -32,6 +38,10 @@ body {
   font-size: 16px;
   line-height: 1.6;
   text-rendering: optimizeLegibility;
+}
+
+main {
+  overflow-x: clip;
 }
 
 a {
