@@ -1,6 +1,6 @@
-# Signal in the Context
+# Priyansh Sarvaiya's blog
 
-A clean, fast Astro blog for Priyansh Sarvaiya focused on AI, LLMs, world models, reasoning, AGI, AI safety, and research notes.
+A minimal Astro blog for notes on AI, LLMs, world models, and AGI.
 
 The site is designed for GitHub Pages at:
 
@@ -14,6 +14,19 @@ Install dependencies:
 
 ```bash
 npm install
+```
+
+Copy the example environment file:
+
+```bash
+cp .env.example .env
+```
+
+Then fill in the values you use locally:
+
+```env
+PUBLIC_GA_MEASUREMENT_ID=G-ABC123XYZ9
+PUBLIC_DISQUS_SHORTNAME=your-disqus-shortname
 ```
 
 Start the development server:
@@ -47,7 +60,7 @@ Each post should use this frontmatter shape:
 ```yaml
 ---
 title: "Post title"
-description: "Short summary for cards and SEO."
+description: "Short summary for the homepage and SEO."
 pubDate: 2026-04-29
 updatedDate: 2026-05-01
 tags: ["LLMs", "reasoning"]
@@ -56,7 +69,37 @@ draft: false
 ---
 ```
 
-Set `draft: true` to keep a post out of production pages.
+`tags` and `category` can stay in frontmatter for organization, but they are not shown in the UI. Set `draft: true` to keep a post out of production pages.
+
+## Analytics
+
+Google Analytics is configured through:
+
+```env
+PUBLIC_GA_MEASUREMENT_ID=G-ABC123XYZ9
+```
+
+Use the Measurement ID from your GA4 web stream. It starts with `G-`.
+
+For GitHub Pages deployment, add a repository variable named `PUBLIC_GA_MEASUREMENT_ID` in GitHub:
+
+`Settings -> Secrets and variables -> Actions -> Variables -> New repository variable`
+
+## Comments
+
+Disqus comments are configured through:
+
+```env
+PUBLIC_DISQUS_SHORTNAME=your-disqus-shortname
+```
+
+Use only the shortname, not the full URL. For example, if the embed URL is `https://priyansh-blog.disqus.com/embed.js`, the value should be:
+
+```env
+PUBLIC_DISQUS_SHORTNAME=priyansh-blog
+```
+
+For GitHub Pages deployment, add a repository variable named `PUBLIC_DISQUS_SHORTNAME` in GitHub.
 
 ## Deployment
 

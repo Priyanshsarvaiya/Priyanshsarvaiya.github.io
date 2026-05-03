@@ -1,0 +1,27 @@
+---
+const measurementId = import.meta.env.PUBLIC_GA_MEASUREMENT_ID?.trim();
+const isConfigured =
+  measurementId &&
+  /^G-[A-Z0-9]+$/i.test(measurementId) &&
+  !measurementId.includes("REPLACE");
+const gtagSrc = isConfigured
+  ? `https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(measurementId)}`
+  : "";
+const gtagScript = isConfigured
+  ? `
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag("js", new Date());
+gtag("config", ${JSON.stringify(measurementId)});
+`
+  : "";
+---
+
+{
+  isConfigured && (
+    <>
+      <script is:inline async src={gtagSrc} />
+      <script is:inline set:html={gtagScript} />
+    </>
+  )
+}
