@@ -1,0 +1,46 @@
+---
+const disqusShortname = import.meta.env.PUBLIC_DISQUS_SHORTNAME?.trim();
+const pageUrl = new URL(Astro.url.pathname, Astro.site).toString();
+const pageIdentifier = Astro.url.pathname;
+const embedUrl = disqusShortname
+  ? `https://${disqusShortname}.disqus.com/embed.js`
+  : "";
+const disqusScript = disqusShortname
+  ? `
+window.disqus_config = function () {
+  this.page.url = ${JSON.stringify(pageUrl)};
+  this.page.identifier = ${JSON.stringify(pageIdentifier)};
+};
+
+(function () {
+  var d = document;
+  var s = d.createElement("script");
+  s.src = ${JSON.stringify(embedUrl)};
+  s.setAttribute("data-timestamp", String(+new Date()));
+  (d.head || d.body).appendChild(s);
+})();
+`
+  : "";
+---
+
+<section class="comments" aria-labelledby="comments-title">
+  <h2 id="comments-title">Comments</h2>
+  {
+    disqusShortname ? (
+      <>
+        <div id="disqus_thread" />
+        <script is:inline set:html={disqusScript} />
+        <noscript>
+          Please enable JavaScript to view the{" "}
+          <a href="https://disqus.com/?ref_noscript">
+            comments powered by Disqus.
+          </a>
+        </noscript>
+      </>
+    ) : (
+      <p class="comments-note">
+        Set <code>PUBLIC_DISQUS_SHORTNAME</code> to enable Disqus comments.
+      </p>
+    )
+  }
+</section>

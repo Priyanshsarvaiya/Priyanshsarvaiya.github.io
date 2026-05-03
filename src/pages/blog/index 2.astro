@@ -1,0 +1,37 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import BlogCard from '../../components/BlogCard.astro';
+import Tag from '../../components/Tag.astro';
+import { getAllTags, getPublishedPosts } from '../../lib/blog';
+
+const posts = await getPublishedPosts();
+const tags = getAllTags(posts);
+---
+
+<BaseLayout
+  title="Blog"
+  description="Research notes and technical explainers on LLMs, world models, reasoning, AGI, and AI safety."
+>
+  <section class="page-heading">
+    <div class="container narrow">
+      <p class="eyebrow">Blog</p>
+      <h1>Research notes and technical essays</h1>
+      <p>
+        Beginner-friendly but serious writing on language models, reasoning,
+        world models, long-context behavior, and the road toward more general
+        AI systems.
+      </p>
+    </div>
+  </section>
+
+  <section class="section compact">
+    <div class="container">
+      <div class="tag-cloud" aria-label="All tags">
+        {tags.map(({ tag }) => <Tag label={tag} />)}
+      </div>
+      <div class="post-grid">
+        {posts.map((post) => <BlogCard post={post} />)}
+      </div>
+    </div>
+  </section>
+</BaseLayout>
