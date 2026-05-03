@@ -1,7 +1,7 @@
 ---
 title: "First Blog: Hello from the Latent Space"
 description: "A small note on why I am starting this blog and what I want to write about."
-pubDate: 2026-04-05
+pubDate: 2026-05-03
 tags: ["AI", "LLMs", "AGI", "research notes"]
 category: "Research Notes"
 draft: false
