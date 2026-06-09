@@ -2,7 +2,19 @@
 title: "First Blog: Hello from the Latent Space"
 description: "A small note on why I am starting this blog and what I want to write about."
 pubDate: 2026-05-03
-tags: ["AI", "LLMs", "AGI", "research notes"]
+tags: ["AI", "LLMs", "AGI", "world models", "long context"]
+keywords:
+  [
+    "GPT",
+    "ChatGPT",
+    "language model",
+    "transformer",
+    "artificial intelligence",
+    "context window",
+    "memory",
+    "agents",
+    "general intelligence",
+  ]
 category: "Research Notes"
 draft: false
 ---

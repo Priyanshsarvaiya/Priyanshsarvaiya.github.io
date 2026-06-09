@@ -15,11 +15,28 @@ const { post } = Astro.props;
   <article class="article">
     <a class="back-link" href="/">&#8592; Back to blog</a>
     <header class="article-header">
-      <time datetime={post.data.pubDate.toISOString()}>
-        {formatDate(post.data.pubDate)}
-      </time>
+      <p class="post-meta">
+        <time datetime={post.data.pubDate.toISOString()}>
+          {formatDate(post.data.pubDate)}
+        </time>
+        <span>{post.data.category}</span>
+        {
+          post.data.updatedDate && (
+            <span>Updated {formatDate(post.data.updatedDate)}</span>
+          )
+        }
+      </p>
       <h1>{post.data.title}</h1>
       {post.data.description && <p>{post.data.description}</p>}
+      {
+        post.data.tags.length > 0 && (
+          <ul class="tag-list" aria-label="Post tags">
+            {post.data.tags.map((tag) => (
+              <li>{tag}</li>
+            ))}
+          </ul>
+        )
+      }
     </header>
 
     <div class="prose">

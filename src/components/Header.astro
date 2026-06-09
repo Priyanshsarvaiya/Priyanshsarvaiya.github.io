@@ -1,11 +1,184 @@
+---
+import { formatDate, getPostUrl, getPublishedPosts } from "../lib/blog";
+
+const posts = await getPublishedPosts();
+const searchPosts = posts.map((post) => ({
+  date: formatDate(post.data.pubDate),
+  description: post.data.description,
+  keywords: post.data.keywords ?? [],
+  tags: post.data.tags ?? [],
+  title: post.data.title,
+  url: getPostUrl(post),
+}));
+---
+
 <header class="site-header">
   <div class="site-container header-inner">
     <a class="site-logo" href="/" aria-label="Priyansh Sarvaiya's blog home">
       <span class="logo-mark" aria-hidden="true">PS</span>
       <span>Priyansh Sarvaiya's blog</span>
     </a>
-    <nav class="site-nav" aria-label="Primary navigation">
-      <a href="https://priyanshsarvaiya.vercel.app/">About</a>
-    </nav>
+    <div class="header-actions">
+      <div class="site-search" data-tag-search>
+        <label class="visually-hidden" for="tag-search"
+          >Search posts by tag</label
+        >
+        <input
+          id="tag-search"
+          class="site-search-input"
+          type="search"
+          placeholder="Search tags or keywords..."
+          autocomplete="off"
+          data-tag-search-input
+          aria-controls="tag-search-results"
+          aria-expanded="false"
+        />
+        <div
+          id="tag-search-results"
+          class="site-search-results"
+          data-tag-search-results
+          hidden
+        >
+        </div>
+      </div>
+      <nav class="site-nav" aria-label="Primary navigation">
+        <a href="/">Blog</a>
+        <a href="https://priyanshsarvaiya.vercel.app/">About</a>
+      </nav>
+    </div>
   </div>
 </header>
+
+<script
+  is:inline
+  type="application/json"
+  id="tag-search-data"
+  set:html={JSON.stringify(searchPosts)}
+/>
+
+<script>
+  const searchRoot = document.querySelector<HTMLElement>("[data-tag-search]");
+  const searchInput = document.querySelector<HTMLInputElement>(
+    "[data-tag-search-input]",
+  );
+  const searchResults = document.querySelector<HTMLElement>(
+    "[data-tag-search-results]",
+  );
+  const searchDataElement = document.getElementById("tag-search-data");
+
+  type SearchPost = {
+    date: string;
+    description: string;
+    keywords: string[];
+    tags: string[];
+    title: string;
+    url: string;
+  };
+
+  const posts = searchDataElement?.textContent
+    ? (JSON.parse(searchDataElement.textContent) as SearchPost[])
+    : [];
+
+  function normalize(value: string) {
+    return value.trim().toLowerCase();
+  }
+
+  function escapeHtml(value: string) {
+    return value
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+
+  function updateVisiblePostCards(query: string) {
+    const cards = document.querySelectorAll<HTMLElement>("[data-search-card]");
+    const emptyState = document.querySelector<HTMLElement>(
+      "[data-search-empty]",
+    );
+
+    if (cards.length === 0) return;
+
+    let visibleCount = 0;
+    cards.forEach((card) => {
+      const terms = normalize(card.dataset.searchTerms || "");
+      const isVisible = !query || terms.includes(query);
+      card.hidden = !isVisible;
+      if (isVisible) visibleCount += 1;
+    });
+
+    if (emptyState) {
+      emptyState.hidden = visibleCount > 0;
+    }
+  }
+
+  function renderTagSearch() {
+    if (!searchInput || !searchResults) return;
+
+    const query = normalize(searchInput.value);
+    updateVisiblePostCards(query);
+
+    if (!query) {
+      searchResults.hidden = true;
+      searchInput.setAttribute("aria-expanded", "false");
+      searchResults.innerHTML = "";
+      return;
+    }
+
+    const matches = posts.filter((post) => {
+      const searchableTerms = [...post.tags, ...(post.keywords || [])];
+      return searchableTerms.some((term) => normalize(term).includes(query));
+    });
+
+    searchResults.hidden = false;
+    searchInput.setAttribute("aria-expanded", "true");
+
+    if (matches.length === 0) {
+      searchResults.innerHTML =
+        '<p class="site-search-empty">No posts found for that tag or keyword.</p>';
+      return;
+    }
+
+    searchResults.innerHTML = `
+      <ul class="site-search-list">
+        ${matches
+          .map(
+            (post) => `
+              <li>
+                <a href="${escapeHtml(post.url)}">
+                  <span class="site-search-title">${escapeHtml(post.title)}</span>
+                  <span class="site-search-meta">${escapeHtml(post.date)} · ${post.tags
+                    .map((tag) => escapeHtml(tag))
+                    .join(", ")}</span>
+                </a>
+              </li>
+            `,
+          )
+          .join("")}
+      </ul>
+    `;
+  }
+
+  searchInput?.addEventListener("input", renderTagSearch);
+  searchInput?.addEventListener("focus", renderTagSearch);
+  searchInput?.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && searchResults) {
+      searchInput.value = "";
+      updateVisiblePostCards("");
+      searchResults.hidden = true;
+      searchInput.setAttribute("aria-expanded", "false");
+    }
+  });
+
+  document.addEventListener("click", (event) => {
+    if (
+      searchRoot &&
+      searchResults &&
+      event.target instanceof Node &&
+      !searchRoot.contains(event.target)
+    ) {
+      searchResults.hidden = true;
+      searchInput?.setAttribute("aria-expanded", "false");
+    }
+  });
+</script>

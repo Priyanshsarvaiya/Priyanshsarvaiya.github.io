@@ -13,11 +13,11 @@ window.disqus_config = function () {
 };
 
 (function () {
-  var d = document;
-  var s = d.createElement("script");
-  s.src = ${JSON.stringify(embedUrl)};
-  s.setAttribute("data-timestamp", String(+new Date()));
-  (d.head || d.body).appendChild(s);
+  var script = document.createElement("script");
+  script.src = ${JSON.stringify(embedUrl)};
+  script.async = true;
+  script.setAttribute("data-timestamp", String(Date.now()));
+  document.head.appendChild(script);
 })();
 `
   : "";

@@ -10,23 +10,51 @@ const posts = await getPublishedPosts();
   description="Notes on AI, LLMs, world models, and AGI by Priyansh Sarvaiya."
 >
   <section class="blog-index site-container">
-    <h1 class="visually-hidden">Priyansh Sarvaiya's blog posts</h1>
+    <header class="blog-hero">
+      <p class="eyebrow">Research notes</p>
+      <h1>Notes from the latent space.</h1>
+      <p>
+        Writing about AI systems, long-context reasoning, world models, AGI, and
+        the failure modes that show up while learning and building.
+      </p>
+    </header>
+
     <div class="post-list">
       {
         posts.map((post) => (
-          <article class="post-list-item">
-            <time datetime={post.data.pubDate.toISOString()}>
-              {formatDate(post.data.pubDate)}
-            </time>
+          <article
+            class="post-list-item"
+            data-search-card
+            data-search-terms={[
+              ...(post.data.tags ?? []),
+              ...(post.data.keywords ?? []),
+            ].join(" ")}
+          >
+            <p class="post-meta">
+              <time datetime={post.data.pubDate.toISOString()}>
+                {formatDate(post.data.pubDate)}
+              </time>
+              <span>{post.data.category}</span>
+            </p>
             <div>
               <h2>
                 <a href={getPostUrl(post)}>{post.data.title}</a>
               </h2>
               <p>{post.data.description}</p>
+              {post.data.tags.length > 0 && (
+                <ul class="tag-list" aria-label="Post tags">
+                  {post.data.tags.map((tag) => (
+                    <li>{tag}</li>
+                  ))}
+                </ul>
+              )}
             </div>
           </article>
         ))
       }
     </div>
+    <p class="post-list-empty" data-search-empty hidden>
+      No posts match that tag or keyword.
+    </p>
   </section>
 </BaseLayout>
